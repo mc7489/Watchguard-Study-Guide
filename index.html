@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WatchGuard Network Security Essentials — Study Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-0: #0a0e14;
+    --bg-1: #0f1419;
+    --bg-2: #161c24;
+    --bg-3: #1d242e;
+    --border: #2a3340;
+    --border-bright: #3a4555;
+    --text-1: #e6e9ef;
+    --text-2: #9ca6b5;
+    --text-3: #6b7588;
+    --accent: #ff5252;
+    --accent-dim: #b73a3a;
+    --accent-glow: rgba(255, 82, 82, 0.15);
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --info: #60a5fa;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg-0);
+    color: var(--text-1);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 82, 82, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 82, 82, 0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at top, rgba(255, 82, 82, 0.08), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .brand { display: flex; flex-direction: column; gap: 6px; }
+  .brand-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-tag::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .brand h1 {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .brand h1 .accent { color: var(--accent); }
+  .brand-sub {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-top: 4px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 24px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .stat { text-align: right; }
+  .stat-label { color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; }
+  .stat-val { color: var(--text-1); font-size: 16px; font-weight: 500; margin-top: 2px; }
+  .stat-val.accent { color: var(--accent); }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 32px;
+    background: var(--bg-1);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tab {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    color: var(--text-2);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--text-1); background: var(--bg-2); }
+  .tab.active {
+    background: var(--accent);
+    color: var(--bg-0);
+    box-shadow: 0 4px 16px var(--accent-glow);
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* STUDY GUIDE */
+  .study-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 32px;
+  }
+  @media (max-width: 900px) { .study-layout { grid-template-columns: 1fr; } }
+
+  .toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+  .toc-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .toc-list { list-style: none; }
+  .toc-link {
+    display: block;
+    padding: 8px 12px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: 13px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+  }
+  .toc-link:hover { color: var(--text-1); background: var(--bg-2); border-left-color: var(--border-bright); }
+  .toc-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--bg-2); }
+  .toc-num { font-family: var(--mono); font-size: 11px; color: var(--text-3); margin-right: 8px; }
+
+  .study-content { min-width: 0; }
+  .study-section {
+    margin-bottom: 48px;
+    scroll-margin-top: 24px;
+  }
+  .study-section h2 {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-1);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .study-section h2::before {
+    content: attr(data-num);
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  .study-section .lead {
+    color: var(--text-2);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .study-section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-1);
+    margin: 24px 0 8px;
+    font-family: var(--mono);
+  }
+  .study-section p { color: var(--text-2); margin-bottom: 12px; font-size: 14px; }
+  .study-section ul { margin: 8px 0 16px; padding-left: 20px; color: var(--text-2); font-size: 14px; }
+  .study-section li { margin-bottom: 6px; }
+  .study-section strong { color: var(--text-1); font-weight: 600; }
+  .study-section code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--bg-2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--accent);
+    border: 1px solid var(--border);
+  }
+
+  .callout {
+    background: var(--bg-1);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+  }
+  .callout-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .callout p { font-size: 13px; margin-bottom: 0; color: var(--text-2); }
+
+  .table-wrap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--bg-2); font-family: var(--mono); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); }
+  td { color: var(--text-2); }
+  td:first-child { color: var(--text-1); font-weight: 500; }
+  tr:last-child td { border-bottom: none; }
+
+  /* FLASHCARDS */
+  .fc-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .fc-filter {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .chip:hover { border-color: var(--border-bright); color: var(--text-1); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: var(--bg-0); }
+
+  .fc-counter {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .fc-counter span { color: var(--accent); font-weight: 500; }
+
+  .flashcard {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-height: 380px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.2s, transform 0.4s;
+    perspective: 1000px;
+  }
+  .flashcard:hover { border-color: var(--border-bright); }
+  .fc-tag {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .fc-side {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .fc-content {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--text-1);
+    max-width: 700px;
+  }
+  .fc-content.answer { font-size: 16px; color: var(--text-2); text-align: left; }
+  .fc-content.answer strong { color: var(--text-1); }
+  .fc-hint {
+    position: absolute;
+    bottom: 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .fc-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    gap: 12px;
+  }
+  .btn {
+    padding: 10px 20px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text-1);
+    font-family: var(--mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.primary { background: var(--accent); color: var(--bg-0); border-color: var(--accent); }
+  .btn.primary:hover { background: var(--accent-dim); }
+
+  .fc-mark {
+    display: flex;
+    gap: 8px;
+  }
+  .mark-btn {
+    padding: 8px 14px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .mark-btn.known:hover, .mark-btn.known.active { border-color: var(--success); color: var(--success); }
+  .mark-btn.review:hover, .mark-btn.review.active { border-color: var(--warning); color: var(--warning); }
+
+  /* QUIZ */
+  .quiz-intro {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+  }
+  .quiz-intro h3 {
+    font-family: var(--mono);
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .quiz-intro p { color: var(--text-2); margin-bottom: 8px; }
+  .quiz-options {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 24px 0 12px;
+    flex-wrap: wrap;
+  }
+
+  .quiz-progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--bg-2);
+    border-radius: 2px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-dim));
+    transition: width 0.4s;
+    border-radius: 2px;
+  }
+
+  .question-card {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+  }
+  .q-domain {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .q-text {
+    font-size: 17px;
+    color: var(--text-1);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .q-options { display: flex; flex-direction: column; gap: 10px; }
+  .q-opt {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-2);
+    font-size: 14px;
+    text-align: left;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-family: inherit;
+  }
+  .q-opt:hover:not(:disabled) { border-color: var(--border-bright); color: var(--text-1); }
+  .q-opt-letter {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-3);
+    flex-shrink: 0;
+    min-width: 16px;
+  }
+  .q-opt.correct { border-color: var(--success); background: rgba(74, 222, 128, 0.08); color: var(--text-1); }
+  .q-opt.correct .q-opt-letter { color: var(--success); }
+  .q-opt.incorrect { border-color: var(--accent); background: rgba(255, 82, 82, 0.08); color: var(--text-1); }
+  .q-opt.incorrect .q-opt-letter { color: var(--accent); }
+  .q-opt:disabled { cursor: default; }
+
+  .q-explanation {
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--bg-2);
+    border-left: 3px solid var(--info);
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: var(--text-2);
+    display: none;
+  }
+  .q-explanation.show { display: block; animation: fadeIn 0.3s; }
+  .q-explanation-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--info);
+    margin-bottom: 6px;
+  }
+  .q-explanation strong { color: var(--text-1); }
+
+  .quiz-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 12px;
+  }
+
+  /* RESULTS */
+  .results {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+  }
+  .score-display {
+    font-family: var(--mono);
+    font-size: 64px;
+    font-weight: 500;
+    color: var(--accent);
+    line-height: 1;
+    margin: 16px 0;
+  }
+  .score-display .total { color: var(--text-3); font-size: 32px; }
+  .score-pct {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--text-2);
+    margin-bottom: 24px;
+  }
+  .score-pct.pass { color: var(--success); }
+  .score-pct.fail { color: var(--accent); }
+  .domain-breakdown {
+    text-align: left;
+    margin: 24px 0;
+    padding: 20px;
+    background: var(--bg-2);
+    border-radius: 8px;
+  }
+  .domain-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .domain-row:last-child { border-bottom: none; }
+  .domain-row .name { color: var(--text-2); font-family: var(--mono); font-size: 12px; }
+  .domain-row .val { color: var(--text-1); font-family: var(--mono); }
+
+  .footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--text-3);
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-1); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  @media (max-width: 600px) {
+    .app { padding: 20px 16px 60px; }
+    .brand h1 { font-size: 22px; }
+    .stats { gap: 16px; }
+    .stat-val { font-size: 14px; }
+    .flashcard { padding: 28px 20px; min-height: 320px; }
+    .fc-content { font-size: 17px; }
+    .fc-content.answer { font-size: 14px; }
+    .question-card { padding: 20px; }
+    .q-text { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="brand-tag">FIREWARE OS // STUDY CONSOLE</div>
+      <h1>Network Security <span class="accent">Essentials</span></h1>
+      <div class="brand-sub">WatchGuard Firebox certification prep — locally-managed track</div>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Cards</div>
+        <div class="stat-val" id="stat-cards">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Questions</div>
+        <div class="stat-val" id="stat-questions">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Pass Mark</div>
+        <div class="stat-val accent">75%</div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-panel="study">Study Guide</button>
+    <button class="tab" data-panel="flashcards">Flashcards</button>
+    <button class="tab" data-panel="quiz">Practice Quiz</button>
+  </nav>
+
+  <!-- STUDY GUIDE -->
+  <section class="panel active" id="panel-study">
+    <div class="study-layout">
+      <aside class="toc">
+        <div class="toc-title">Sections</div>
+        <ul class="toc-list" id="toc-list"></ul>
+      </aside>
+      <div class="study-content" id="study-content"></div>
+    </div>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section class="panel" id="panel-flashcards">
+    <div class="fc-controls">
+      <div class="fc-filter" id="fc-filter"></div>
+      <div class="fc-counter">Card <span id="fc-current">1</span> / <span id="fc-total">—</span></div>
+    </div>
+    <div class="flashcard" id="flashcard" tabindex="0">
+      <div class="fc-tag" id="fc-tag">—</div>
+      <div class="fc-side" id="fc-side">FRONT</div>
+      <div class="fc-content" id="fc-content">Loading…</div>
+      <div class="fc-hint">Tap or press Space to flip</div>
+    </div>
+    <div class="fc-nav">
+      <button class="btn" id="fc-prev">← Prev</button>
+      <div class="fc-mark">
+        <button class="mark-btn known" id="fc-known">Got it</button>
+        <button class="mark-btn review" id="fc-review">Review</button>
+      </div>
+      <button class="btn primary" id="fc-next">Next →</button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="panel" id="panel-quiz">
+    <div id="quiz-stage"></div>
+  </section>
+
+  <footer class="footer">
+    Self-contained study tool · Works offline · Built for the WatchGuard Network Security Essentials exam · Helix-grade
+  </footer>
+</div>
+
+<script>
+// ============== DATA ==============
+const STUDY_SECTIONS = [
+  {
+    id: 'fundamentals',
+    title: 'Firebox & Fireware Fundamentals',
+    lead: 'What a Firebox is, what Fireware OS does, and how to get a device activated and reachable.',
+    content: `
+      <h3>The platform</h3>
+      <p>A <strong>Firebox</strong> is WatchGuard's security appliance, running <strong>Fireware OS</strong> — a unified threat management (UTM) and next-gen firewall (NGFW) operating system. The same Fireware build runs on every model, so configuration concepts you learn on a tabletop <code>T-series</code> apply identically to a rackmount <code>M-series</code> like the M270, or to <code>FireboxV</code> running on Hyper-V/ESXi.</p>
+      <h3>Hardware lineup (typical)</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Family</th><th>Form factor</th><th>Examples</th><th>Use case</th></tr>
+        <tr><td>T-series</td><td>Tabletop / desktop</td><td>T25, T45, T85</td><td>Small office, branch</td></tr>
+        <tr><td>M-series</td><td>1U rackmount</td><td>M270, M290, M390, M590, M690</td><td>Mid-market HQ</td></tr>
+        <tr><td>M-series HE</td><td>1U/2U high-end</td><td>M4800, M5800</td><td>Large enterprise</td></tr>
+        <tr><td>FireboxV / Cloud</td><td>Virtual / IaaS</td><td>FireboxV, Firebox Cloud</td><td>VMware/Hyper-V, AWS, Azure</td></tr>
+      </table></div>
+      <h3>Activation flow</h3>
+      <p>Out of the box, a Firebox has no feature key and provides no security. The activation process unlocks subscription services and ties the appliance to your WatchGuard account.</p>
+      <ul>
+        <li>Create a WatchGuard account at <code>watchguard.com</code></li>
+        <li>Activate the device using its serial number; this generates a <strong>feature key</strong></li>
+        <li>Apply the feature key during the Web Setup Wizard or import it later</li>
+        <li>Without a valid feature key, subscription services (GAV, IPS, WebBlocker, APT Blocker, etc.) won't function</li>
+      </ul>
+      <h3>Default access</h3>
+      <p>Every factory-default Firebox listens on the same address and credentials:</p>
+      <ul>
+        <li>Default management IP: <code>https://10.0.1.1:8080</code></li>
+        <li>Default admin user: <code>admin</code> with passphrase <code>readwrite</code></li>
+        <li>Default monitor user: <code>status</code> with passphrase <code>readonly</code></li>
+        <li>Trusted interface DHCP serves the <code>10.0.1.0/24</code> range to clients</li>
+      </ul>
+      <div class="callout">
+        <div class="callout-label">Exam tip</div>
+        <p>The Web Setup Wizard runs the first time you connect. It walks through interface IPs, the admin/status passphrases, contact info, and feature key import. You can re-run setup by performing a factory reset.</p>
+      </div>
+    `
+  },
+  {
+    id: 'management',
+    title: 'Management Tools',
+    lead: 'Three primary management modes — local Web UI, WatchGuard System Manager, and WatchGuard Cloud — plus monitoring helpers.',
+    content: `
+      <h3>The three management modes</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Tool</th><th>Type</th><th>What it does</th></tr>
+        <tr><td>Fireware Web UI</td><td>Browser, local</td><td>Direct HTTPS connection to the Firebox at port 8080. Most config tasks possible.</td></tr>
+        <tr><td>WatchGuard System Manager (WSM)</td><td>Windows app</td><td>Includes Policy Manager, Firebox System Manager (FSM), and HostWatch. Most powerful local tool.</td></tr>
+        <tr><td>WatchGuard Cloud</td><td>SaaS</td><td>Cloud-managed Fireboxes; centralized config, reporting, alerts. Requires the device to be in cloud-managed mode.</td></tr>
+      </table></div>
+      <h3>WSM components you should know</h3>
+      <ul>
+        <li><strong>Policy Manager</strong> — primary config editor for locally-managed Fireboxes. Edits a config file, saves it to the device.</li>
+        <li><strong>Firebox System Manager (FSM)</strong> — real-time monitoring: traffic, bandwidth, authenticated users, VPN status, subscription health, system status.</li>
+        <li><strong>HostWatch</strong> — visualizes connections passing through the Firebox in real time.</li>
+        <li><strong>Server Center</strong> — manages WatchGuard Servers (Log Server, Report Server, Quarantine Server, WebBlocker Server).</li>
+      </ul>
+      <h3>Other access methods</h3>
+      <ul>
+        <li><strong>CLI over SSH</strong> — limited but useful for diagnostics and scripted tasks. Default SSH port 4118.</li>
+        <li><strong>Serial console</strong> — RJ45 serial port on M-series. 115200 baud, 8N1.</li>
+        <li><strong>Dimension</strong> — free virtual appliance (deploys on ESXi/Hyper-V) for visualization, reporting, and centralized logging.</li>
+      </ul>
+      <h3>Locally-managed vs cloud-managed</h3>
+      <p>A Firebox runs in one mode at a time. Locally-managed devices are configured via Web UI or WSM and optionally send logs to a WatchGuard Cloud account for visibility. Cloud-managed devices receive their entire configuration from WatchGuard Cloud and lose Policy Manager / Web UI configuration capabilities.</p>
+      <div class="callout">
+        <div class="callout-label">Gotcha</div>
+        <p>Switching a Firebox from locally-managed to cloud-managed (or vice versa) requires a factory reset and re-onboarding — not a toggle. Plan accordingly.</p>
+      </div>
+    `
+  },
+  {
+    id: 'networking',
+    title: 'Networking & Interfaces',
+    lead: 'Interface zones, addressing, VLANs, multi-WAN, and the routing model Fireware uses.',
+    content: `
+      <h3>Interface types (zones)</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Zone</th><th>Trust level</th><th>Typical use</th></tr>
+        <tr><td>External</td><td>Untrusted</td><td>WAN / Internet uplink</td></tr>
+        <tr><td>Trusted</td><td>Trusted</td><td>LAN / internal users</td></tr>
+        <tr><td>Optional</td><td>Semi-trusted</td><td>DMZ, guest, lab segments</td></tr>
+        <tr><td>Custom</td><td>User-defined</td><td>Granular policy zones beyond the built-in three</td></tr>
+        <tr><td>VLAN</td><td>Per-VLAN</td><td>802.1Q tagged segments on a physical interface</td></tr>
+        <tr><td>Bridge</td><td>L2</td><td>Bind multiple interfaces into a single broadcast domain</td></tr>
+        <tr><td>Link Aggregation</td><td>L2/L3</td><td>LACP-style bundle for throughput / redundancy</td></tr>
+      </table></div>
+      <h3>External interface addressing</h3>
+      <ul>
+        <li><strong>Static</strong> — fixed IP, subnet, gateway from your ISP</li>
+        <li><strong>DHCP</strong> — Firebox acts as a DHCP client; common for cable / fiber-to-CPE</li>
+        <li><strong>PPPoE</strong> — for ISPs that require it (some DSL, fiber); username and password configured on the interface</li>
+      </ul>
+      <h3>Multi-WAN methods</h3>
+      <p>When you have more than one external interface, Fireware supports four methods for distributing traffic:</p>
+      <div class="table-wrap"><table>
+        <tr><th>Method</th><th>Behavior</th></tr>
+        <tr><td>Round-Robin</td><td>Load-balances across all healthy WANs in rotation</td></tr>
+        <tr><td>Failover</td><td>Uses primary WAN; falls over to secondary when primary fails link/probe checks</td></tr>
+        <tr><td>Interface Overflow</td><td>Sends all traffic to primary until threshold is hit, then spills to secondary</td></tr>
+        <tr><td>Routing Table</td><td>Uses the OS routing table (and policy-based routing) for path selection</td></tr>
+      </table></div>
+      <h3>Routing</h3>
+      <ul>
+        <li>Static routes — manual destination / gateway entries</li>
+        <li>Dynamic routing — Fireware supports <strong>RIPv1/v2</strong>, <strong>OSPFv2/v3</strong>, and <strong>BGP</strong></li>
+        <li>Policy-based routing — bind a policy to a specific outgoing interface</li>
+        <li>Sticky connections — keep a flow on the interface it started on, even with multi-WAN</li>
+      </ul>
+      <h3>Interface modes</h3>
+      <p>Fireware supports <strong>routed (mixed routing)</strong> mode — the default, with NAT and zone separation — and <strong>drop-in</strong> mode, where the Firebox uses one IP across all interfaces and acts more like a transparent inline filter while preserving the existing IP plan.</p>
+    `
+  },
+  {
+    id: 'nat',
+    title: 'NAT (Network Address Translation)',
+    lead: 'Three NAT styles in Fireware: Dynamic NAT, Static NAT (SNAT), and 1-to-1 NAT — when to use which.',
+    content: `
+      <h3>Dynamic NAT</h3>
+      <p>Outbound NAT — the most common. Internal hosts share a single external IP via port translation (PAT). Enabled by default for traffic from Trusted/Optional to External.</p>
+      <ul>
+        <li>Configured globally and per-policy</li>
+        <li>Hides internal addressing from the internet</li>
+        <li>Default behavior; you usually don't disable this</li>
+      </ul>
+      <h3>Static NAT / SNAT</h3>
+      <p>Inbound port forwarding. Maps an external IP and port to an internal host and port — for example, <code>203.0.113.10:443 → 10.10.1.20:443</code> to publish a web server.</p>
+      <ul>
+        <li>Configured inside an inbound policy (e.g., HTTPS-inbound)</li>
+        <li>SNAT actions are reusable across policies via the SNAT table</li>
+        <li>Supports load balancing across multiple internal hosts (round-robin, least connections, sticky)</li>
+      </ul>
+      <h3>1-to-1 NAT</h3>
+      <p>Bidirectional fixed mapping between a public IP and an internal IP. Used when you need every port of an external IP to map to one internal host — e.g., a mail server with a dedicated public IP.</p>
+      <h3>NAT loopback (NAT reflection)</h3>
+      <p>Internal users hitting the public IP of a service that lives on the same network. Fireware handles this automatically when the SNAT policy permits it, so internal clients can reach <code>https://www.company.com</code> without DNS split-horizon tricks.</p>
+      <div class="callout">
+        <div class="callout-label">Order of operations</div>
+        <p>Inbound traffic: routing → policy match → static NAT → policy actions. Outbound: policy match → policy actions → dynamic NAT. Important when troubleshooting why a packet is or isn't translated.</p>
+      </div>
+    `
+  },
+  {
+    id: 'policies',
+    title: 'Policies, Aliases & Schedules',
+    lead: 'How Fireware decides what to allow or deny — packet filters vs proxy policies, aliases, schedules, and ordering.',
+    content: `
+      <h3>Two policy types</h3>
+      <ul>
+        <li><strong>Packet filter</strong> — operates on Layer 3/4 (IP, port, protocol). Fast, low overhead. Doesn't inspect application content.</li>
+        <li><strong>Proxy</strong> — terminates and re-originates the connection. Full content inspection: HTTP/HTTPS, SMTP, IMAP, POP3, FTP, DNS, SIP, H.323, TCP-UDP. Required for subscription services like Gateway AntiVirus, APT Blocker, WebBlocker on most protocols.</li>
+      </ul>
+      <h3>Anatomy of a policy</h3>
+      <ul>
+        <li><strong>From</strong> — source: aliases, users, zones, IPs</li>
+        <li><strong>To</strong> — destination</li>
+        <li><strong>Action</strong> — Allow, Denied (silent), Denied (send TCP reset / ICMP)</li>
+        <li><strong>Schedule</strong> — always on, or time-bound</li>
+        <li><strong>Logging</strong> — log allowed packets, log denied packets, send notifications</li>
+        <li><strong>Application Control / IPS / GAV / WebBlocker</strong> — per-policy subscription services</li>
+        <li><strong>Traffic Management</strong> — QoS / bandwidth limits</li>
+      </ul>
+      <h3>Policy precedence</h3>
+      <p>Fireware processes policies top-to-bottom. By default, ordering is <strong>Auto-Order</strong> — the system places more specific policies first. You can switch to <strong>Manual-Order</strong> to drag policies into a custom sequence (necessary for some scenarios, like overlapping rules).</p>
+      <h3>Aliases</h3>
+      <p>Reusable named groups: IPs, networks, FQDNs, users, interfaces. Built-in aliases include <code>Any-Trusted</code>, <code>Any-External</code>, <code>Any-Optional</code>, <code>Any-BOVPN</code>, <code>Any</code>. Use them so you don't repeat IPs across dozens of policies.</p>
+      <h3>Schedules</h3>
+      <p>Bind a policy to a time window — e.g., social media access only at lunch. Schedules are reusable objects.</p>
+      <div class="callout">
+        <div class="callout-label">Default behavior</div>
+        <p>Out of the box, traffic from Trusted to External is allowed (Outgoing policy). Inbound from External is denied unless a specific policy allows it. Trusted-to-Trusted traffic that's local to a subnet doesn't traverse the Firebox at all.</p>
+      </div>
+    `
+  },
+  {
+    id: 'proxies',
+    title: 'Proxies & Subscription Services',
+    lead: 'Fireware\'s proxy engines and the subscription services that ride on top of them.',
+    content: `
+      <h3>Proxy engines</h3>
+      <ul>
+        <li><strong>HTTP / HTTPS proxy</strong> — content type filtering, header inspection, body size limits; HTTPS proxy supports content inspection via certificate substitution</li>
+        <li><strong>SMTP / IMAP / POP3</strong> — antispam, antivirus, attachment filtering</li>
+        <li><strong>FTP, DNS, SIP, H.323</strong> — protocol-aware filtering</li>
+        <li><strong>TCP-UDP proxy</strong> — generic catch-all; lets you apply some inspection to non-HTTP traffic</li>
+      </ul>
+      <h3>HTTPS content inspection</h3>
+      <p>To inspect TLS-encrypted traffic, the HTTPS proxy performs a man-in-the-middle: it terminates the client's TLS connection using a Firebox-generated certificate, inspects the cleartext, and re-encrypts to the destination server. Clients must trust the Firebox CA cert (push via GPO in AD environments).</p>
+      <h3>Subscription services</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Service</th><th>What it does</th></tr>
+        <tr><td>Gateway AntiVirus (GAV)</td><td>Signature-based AV scanning on HTTP, FTP, SMTP, IMAP, POP3, TCP-UDP</td></tr>
+        <tr><td>IntelligentAV</td><td>ML-based detection of unknown / polymorphic malware</td></tr>
+        <tr><td>APT Blocker</td><td>Cloud sandbox detonation of suspicious files</td></tr>
+        <tr><td>IPS (Intrusion Prevention)</td><td>Signature-based exploit / attack pattern blocking</td></tr>
+        <tr><td>WebBlocker</td><td>URL category filtering (130+ categories)</td></tr>
+        <tr><td>Application Control</td><td>Identify and control 1,800+ applications by signature, regardless of port</td></tr>
+        <tr><td>spamBlocker</td><td>Email reputation and content filtering</td></tr>
+        <tr><td>Reputation Enabled Defense (RED)</td><td>Cloud-based URL reputation lookup</td></tr>
+        <tr><td>Botnet Detection</td><td>Blocks traffic to known botnet C2 sites</td></tr>
+        <tr><td>Geolocation</td><td>Block traffic to/from countries</td></tr>
+        <tr><td>Data Loss Prevention (DLP)</td><td>Pattern-match sensitive data leaving the network</td></tr>
+        <tr><td>DNSWatch</td><td>Cloud DNS filtering against malicious domains</td></tr>
+        <tr><td>ThreatSync</td><td>XDR — correlates Firebox + endpoint signals</td></tr>
+      </table></div>
+      <h3>Bundles</h3>
+      <p>Services are sold in two bundles: <strong>Basic Security Suite (BSS)</strong> includes the foundational services (AppCtrl, IPS, GAV, WebBlocker, spamBlocker, RED, Network Discovery). <strong>Total Security Suite (TSS)</strong> adds APT Blocker, IntelligentAV, DNSWatch, DLP, ThreatSync, AccessPortal, and more.</p>
+    `
+  },
+  {
+    id: 'authentication',
+    title: 'Authentication & SSO',
+    lead: 'Local users, third-party auth servers, Single Sign-On, and how Fireware ties identity to policies.',
+    content: `
+      <h3>Authentication sources</h3>
+      <ul>
+        <li><strong>Firebox-DB</strong> — local user database stored on the device</li>
+        <li><strong>Active Directory</strong> — most common in enterprise; uses LDAP under the hood with AD-specific behaviors</li>
+        <li><strong>LDAP</strong> — generic LDAP servers (OpenLDAP, eDirectory)</li>
+        <li><strong>RADIUS</strong> — for MFA backends, NPS, FreeRADIUS</li>
+        <li><strong>SecurID</strong> — RSA token authentication</li>
+        <li><strong>SAML</strong> — for AuthPoint and other SAML IdPs (mobile VPN portal, etc.)</li>
+      </ul>
+      <h3>Authentication portal</h3>
+      <p>Users browse to <code>https://&lt;firebox-ip&gt;:4100/</code> to authenticate manually. Once authenticated, the Firebox associates their IP with their identity for the session, and identity-based policies apply.</p>
+      <h3>Single Sign-On (SSO)</h3>
+      <p>Fireware has multiple SSO mechanisms that map AD users to IPs without prompting them:</p>
+      <ul>
+        <li><strong>SSO Agent + Event Log Monitor (ELM)</strong> — server-side; ELM watches AD security event logs for logon events and reports to the Firebox via the SSO Agent</li>
+        <li><strong>SSO Client</strong> — installed on user workstations; reports the logged-in user to the SSO Agent</li>
+        <li><strong>Exchange Monitor</strong> — picks up users via Exchange access logs</li>
+        <li><strong>Terminal Services Agent</strong> — for RDS / Citrix shared-session servers where many users come from one IP</li>
+      </ul>
+      <h3>AuthPoint MFA</h3>
+      <p>WatchGuard's cloud MFA. Integrates with the Firebox for authenticating Mobile VPN with SSL/IKEv2, the authentication portal, and BOVPN. Supports push, OTP, hardware tokens, and QR-code logon. Often paired with RADIUS via the AuthPoint Gateway.</p>
+      <h3>Identity in policies</h3>
+      <p>Once a user is authenticated, you can use their username or AD group as a source in a policy — e.g., "Allow Sales group to access Salesforce, deny everyone else." Without identity-based policies, you're back to IP-only enforcement.</p>
+    `
+  },
+  {
+    id: 'vpn',
+    title: 'VPN — BOVPN & Mobile VPN',
+    lead: 'Site-to-site (BOVPN) and remote access (Mobile VPN) options; when to pick which technology.',
+    content: `
+      <h3>Branch Office VPN (BOVPN)</h3>
+      <p>Site-to-site VPN between two Fireboxes (or a Firebox and a third-party gateway).</p>
+      <ul>
+        <li><strong>BOVPN Gateway</strong> — the Phase 1 / IKE peer config</li>
+        <li><strong>BOVPN Tunnel</strong> — the Phase 2 / IPsec SA between specific local and remote networks</li>
+        <li><strong>Phase 1</strong> — IKEv1 main/aggressive or IKEv2; authenticates peers (PSK or certificate)</li>
+        <li><strong>Phase 2</strong> — defines what traffic the tunnel encrypts (local network ↔ remote network)</li>
+      </ul>
+      <h3>BOVPN variants</h3>
+      <ul>
+        <li><strong>Manual BOVPN</strong> — you configure both ends explicitly</li>
+        <li><strong>Managed BOVPN</strong> — Policy Manager pushes config to multiple Fireboxes you manage</li>
+        <li><strong>BOVPN over TLS</strong> — encapsulates the tunnel over TLS instead of IPsec; useful when ISP / NAT issues block UDP 500/4500 or ESP</li>
+      </ul>
+      <h3>Mobile VPN options</h3>
+      <div class="table-wrap"><table>
+        <tr><th>Type</th><th>Client</th><th>Notes</th></tr>
+        <tr><td>Mobile VPN with SSL</td><td>WatchGuard Mobile VPN with SSL client (or OpenVPN-compatible)</td><td>Easy to deploy, traverses most NAT/firewalls; TCP/UDP 443 by default</td></tr>
+        <tr><td>Mobile VPN with IKEv2</td><td>Native Windows / macOS / iOS / Android client</td><td>Modern standard; no third-party software needed</td></tr>
+        <tr><td>Mobile VPN with IPSec</td><td>WatchGuard IPSec client or third-party</td><td>Older / legacy IPsec setups</td></tr>
+        <tr><td>Mobile VPN with L2TP</td><td>Native OS L2TP/IPsec client</td><td>Legacy fallback, mostly retained for compatibility</td></tr>
+      </table></div>
+      <h3>Common BOVPN troubleshooting log signals</h3>
+      <ul>
+        <li><code>Phase 1 negotiation failed</code> — peer mismatch on encryption, hash, DH group, lifetime, or PSK</li>
+        <li><code>Received proposal without PFS</code> — mismatched Perfect Forward Secrecy setting between peers</li>
+        <li><code>No proposal chosen</code> — encryption / hash / lifetime mismatch in Phase 2</li>
+        <li><code>NO_PROPOSAL_CHOSEN</code> in IKEv2 — same problem in IKEv2 syntax</li>
+      </ul>
+      <div class="callout">
+        <div class="callout-label">Exam-relevant detail</div>
+        <p>For Mobile VPN with SSL, the Firebox runs the connection on port 443 by default. If you publish a web server on 443 via SNAT, you must move the SSL VPN to a different port (e.g., 4443) — they cannot share the same external port.</p>
+      </div>
+    `
+  },
+  {
+    id: 'logging',
+    title: 'Logging, Monitoring & Reporting',
+    lead: 'Where logs go, what Dimension does, and how to read what the Firebox is telling you.',
+    content: `
+      <h3>Where logs go</h3>
+      <ul>
+        <li><strong>Internal log buffer</strong> — small, volatile; lost on reboot</li>
+        <li><strong>WatchGuard Log Server</strong> — Windows service installed with WSM</li>
+        <li><strong>Dimension Log Server</strong> — virtual appliance log server with a web UI for analysis</li>
+        <li><strong>Syslog</strong> — to any third-party syslog destination (Graylog, Splunk, ELK, Microsoft Sentinel)</li>
+        <li><strong>WatchGuard Cloud</strong> — cloud-based log retention and reporting (paid tier for longer retention)</li>
+      </ul>
+      <h3>Dimension</h3>
+      <p>Free virtual appliance (Hyper-V, ESXi, AWS, Azure). Acts as both log destination and reporting / visualization platform. Key features:</p>
+      <ul>
+        <li>Real-time dashboards (top apps, top users, top destinations)</li>
+        <li>Threat maps and FireWatch (interactive bandwidth visualization)</li>
+        <li>Scheduled reports (PDF / HTML)</li>
+        <li>Log search and policy correlation</li>
+        <li>Anonymization mode for privacy regulations (GDPR-friendly)</li>
+      </ul>
+      <h3>Real-time monitoring (FSM)</h3>
+      <p>Firebox System Manager shows live state: authenticated users, active VPNs, subscription service health, traffic counters per interface, blocked sites, and the live log stream. Useful when you need to see exactly what's happening right now.</p>
+      <h3>Diagnostic tools</h3>
+      <ul>
+        <li><strong>Diagnostic Tasks</strong> in FSM / Web UI: ping, traceroute, DNS lookup, TCP dump (per interface), routing table view</li>
+        <li><strong>Support snapshots</strong> — package config + diagnostic data for WatchGuard support</li>
+        <li><strong>SNMP</strong> — v1/v2c/v3 polling and traps</li>
+      </ul>
+    `
+  },
+  {
+    id: 'ha',
+    title: 'High Availability — FireCluster',
+    lead: 'How to make Firebox failures invisible to users with active/passive or active/active clustering.',
+    content: `
+      <h3>FireCluster modes</h3>
+      <ul>
+        <li><strong>Active / Passive</strong> — one Firebox handles all traffic; the other stays in standby and takes over on failure. Sessions can persist via state sync.</li>
+        <li><strong>Active / Active</strong> — both Fireboxes handle traffic; load is distributed. Slightly more complex; not all features supported.</li>
+      </ul>
+      <h3>Requirements</h3>
+      <ul>
+        <li>Two identical Firebox models with matching firmware</li>
+        <li>Same feature key tier on both (typically same Total Security Suite licensing)</li>
+        <li>A dedicated <strong>cluster interface</strong> for state sync (heartbeats and session table replication)</li>
+        <li>Both members on the same Layer 2 segments for external/trusted</li>
+      </ul>
+      <h3>Failover triggers</h3>
+      <ul>
+        <li>Power loss on the active member</li>
+        <li>Loss of an interface link (configurable per interface)</li>
+        <li>Heartbeat loss over the cluster link</li>
+        <li>Manual failover from FSM</li>
+      </ul>
+      <div class="callout">
+        <div class="callout-label">Common issue</div>
+        <p>FireCluster requires unique IPs per member plus shared "virtual" IPs for the cluster. Misconfiguring this — for example, giving both members the same physical IP — causes immediate ARP conflicts and hard-to-diagnose intermittent traffic.</p>
+      </div>
+    `
+  },
+  {
+    id: 'maintenance',
+    title: 'Maintenance & Recovery',
+    lead: 'Backups, firmware, factory reset, and the safe way to upgrade a production Firebox.',
+    content: `
+      <h3>Backups</h3>
+      <ul>
+        <li><strong>Backup image (.fxi)</strong> — full system snapshot including OS, config, certificates, feature key. Captured from Web UI or Policy Manager.</li>
+        <li><strong>Configuration file (.xml)</strong> — config-only export. Smaller; useful for version control or pushing to multiple devices.</li>
+        <li><strong>USB backup</strong> — back up to a USB stick plugged into the Firebox; a tagged stick can also auto-restore on boot if a unit is replaced.</li>
+      </ul>
+      <h3>Firmware upgrades</h3>
+      <ul>
+        <li>Download from the WatchGuard Software Downloads page (login required)</li>
+        <li>Apply via Policy Manager → File → Upgrade, or Web UI → System → Upgrade OS</li>
+        <li>Reads the firmware version, validates the model, applies the new image, reboots</li>
+        <li><strong>Always take a backup before upgrading</strong></li>
+        <li>Downgrades are supported but you may need to restore from a pre-upgrade backup if the config schema changed</li>
+      </ul>
+      <h3>Factory reset</h3>
+      <p>On M-series like the M270, the procedure is:</p>
+      <ul>
+        <li>Power off the Firebox</li>
+        <li>Hold the <strong>Reset</strong> button while briefly pressing <strong>Power</strong></li>
+        <li>Continue holding Reset until the indicators show recovery state</li>
+        <li>Release; the device boots into factory defaults (10.0.1.1, admin/readwrite)</li>
+      </ul>
+      <p>Factory reset wipes the configuration but does not remove the feature key on most modern firmware — verify after reset.</p>
+      <h3>Feature key management</h3>
+      <ul>
+        <li>View current feature key: System → Feature Key</li>
+        <li>Renew / replace by re-syncing with WatchGuard servers (requires internet access from Firebox or manual import of the .txt file)</li>
+        <li>Expired feature keys disable subscription services but the device still functions as a basic firewall</li>
+      </ul>
+      <div class="callout">
+        <div class="callout-label">Production upgrade checklist</div>
+        <p>1) Save backup image. 2) Save XML config. 3) Read release notes for known issues. 4) Schedule the maintenance window. 5) Upgrade. 6) Validate critical traffic flows (Internet, VPN, key apps) before declaring done.</p>
+      </div>
+    `
+  }
+];
+
+const FLASHCARDS = [
+  // Fundamentals
+  { domain: 'Fundamentals', q: 'What is the default management URL and credentials of a factory-default Firebox?', a: '<strong>https://10.0.1.1:8080</strong> with username <strong>admin</strong> and passphrase <strong>readwrite</strong>. Read-only user is <strong>status</strong> / <strong>readonly</strong>.' },
+  { domain: 'Fundamentals', q: 'What does the feature key control on a Firebox?', a: 'It unlocks subscription services (GAV, IPS, WebBlocker, APT Blocker, etc.) and defines model capabilities. Without a valid feature key, the Firebox runs as a basic firewall but subscription services are inactive.' },
+  { domain: 'Fundamentals', q: 'Name the operating system that runs on every Firebox.', a: '<strong>Fireware OS</strong> — the same code base runs on all hardware models (T-series, M-series, FireboxV) so configuration concepts transfer between them.' },
+  { domain: 'Fundamentals', q: 'How many physical Ethernet interfaces does the Firebox M270 have?', a: '<strong>Eight</strong> 1GbE RJ45 interfaces (interfaces 0–7), plus 2 USB 3.0 ports and an RJ45 serial console port.' },
+  { domain: 'Fundamentals', q: 'What\'s the difference between a locally-managed and cloud-managed Firebox?', a: 'Locally-managed devices are configured via Web UI / WSM and can optionally send logs to WatchGuard Cloud. Cloud-managed devices receive their full configuration from WatchGuard Cloud — Policy Manager and Web UI configuration are disabled. Switching modes requires a factory reset.' },
+
+  // Management
+  { domain: 'Management', q: 'What are the three primary management methods for a locally-managed Firebox?', a: '<strong>Fireware Web UI</strong> (browser to port 8080), <strong>WatchGuard System Manager (WSM)</strong> Windows app with Policy Manager and FSM, and <strong>command-line</strong> via SSH (port 4118) or serial console.' },
+  { domain: 'Management', q: 'What does Firebox System Manager (FSM) do?', a: 'Real-time monitoring of the Firebox: live traffic and bandwidth, authenticated users, active VPN tunnels, subscription service health, system status, and a live log stream. It does not edit configuration — that\'s Policy Manager.' },
+  { domain: 'Management', q: 'What is Policy Manager used for?', a: 'It\'s the WSM editor for the locally-managed Firebox configuration. You open / edit / save the entire device config through it. Most fine-grained configuration tasks live here.' },
+  { domain: 'Management', q: 'What is WatchGuard Dimension?', a: 'A free virtual appliance (Hyper-V, ESXi, AWS, Azure) that acts as a centralized log server and reporting platform. Provides dashboards, FireWatch visualizations, scheduled reports, and log search across one or many Fireboxes.' },
+  { domain: 'Management', q: 'Which port does the Firebox use for SSH CLI access by default?', a: 'TCP <strong>4118</strong> (not the standard 22).' },
+
+  // Networking
+  { domain: 'Networking', q: 'List the built-in interface zones in Fireware.', a: '<strong>External</strong> (untrusted / WAN), <strong>Trusted</strong> (LAN), <strong>Optional</strong> (DMZ / semi-trusted), and <strong>Custom</strong> (user-defined). VLAN, Bridge, and Link Aggregation are also available.' },
+  { domain: 'Networking', q: 'What are the four multi-WAN methods in Fireware?', a: '<strong>Round-Robin</strong>, <strong>Failover</strong>, <strong>Interface Overflow</strong>, and <strong>Routing Table</strong>.' },
+  { domain: 'Networking', q: 'What does "sticky connections" do in a multi-WAN configuration?', a: 'Keeps a flow on the WAN it started on, even when the multi-WAN method might otherwise distribute it elsewhere. Important for connections that break if the source IP changes mid-session (banking, some SaaS).' },
+  { domain: 'Networking', q: 'Which dynamic routing protocols does Fireware support?', a: '<strong>RIPv1/v2</strong>, <strong>OSPFv2/v3</strong>, and <strong>BGP</strong>.' },
+  { domain: 'Networking', q: 'What is "drop-in mode"?', a: 'A Fireware mode where the Firebox uses one IP across all interfaces and acts more like a transparent inline filter, preserving the existing IP plan instead of imposing zone-based subnetting.' },
+  { domain: 'Networking', q: 'How is a VLAN interface created in Fireware?', a: 'Define the VLAN object with its 802.1Q tag, then attach it to one or more physical interfaces. The Firebox can route between VLANs and apply policies between them like any other zone.' },
+
+  // NAT
+  { domain: 'NAT', q: 'What is Dynamic NAT used for?', a: 'Outbound NAT — multiple internal hosts share a single external IP via port translation (PAT). Enabled by default for Trusted/Optional → External traffic.' },
+  { domain: 'NAT', q: 'What is Static NAT (SNAT)?', a: 'Inbound port forwarding — maps an external IP and port to an internal host and port. Used to publish servers (web, mail, RDP gateway) to the internet.' },
+  { domain: 'NAT', q: 'When would you choose 1-to-1 NAT over Static NAT?', a: 'When you need <strong>every</strong> port of a public IP mapped bidirectionally to one internal host — for example, a mail server with a dedicated public IP — instead of mapping individual port pairs.' },
+  { domain: 'NAT', q: 'What is NAT loopback / NAT reflection?', a: 'Allows internal users to reach a publicly-published service by its external IP/FQDN without DNS split-horizon. Fireware handles this automatically when the SNAT policy permits the internal source.' },
+  { domain: 'NAT', q: 'Can SNAT load-balance across multiple internal hosts?', a: 'Yes — SNAT actions support <strong>round-robin, least connections, and sticky</strong> distribution across multiple internal targets.' },
+
+  // Policies
+  { domain: 'Policies', q: 'What\'s the difference between a packet filter and a proxy policy?', a: 'A <strong>packet filter</strong> works at L3/L4 (IP, port, protocol) — fast, no content inspection. A <strong>proxy</strong> terminates and re-originates the connection for full content inspection. Proxies are required for most subscription services (GAV, APT, WebBlocker on HTTP/S).' },
+  { domain: 'Policies', q: 'How does Auto-Order policy precedence work?', a: 'Fireware automatically places more specific policies above more general ones when Auto-Order is enabled. To control exact ordering, switch to Manual-Order and drag policies into sequence.' },
+  { domain: 'Policies', q: 'What is an alias in Fireware?', a: 'A reusable named group of objects: IPs, networks, FQDNs, users, or interfaces. Built-ins include <code>Any-Trusted</code>, <code>Any-External</code>, <code>Any-Optional</code>, <code>Any-BOVPN</code>, and <code>Any</code>.' },
+  { domain: 'Policies', q: 'What\'s the difference between "Denied" and "Denied (send reset)" actions?', a: 'Plain <strong>Denied</strong> drops the packet silently. <strong>Denied (send reset)</strong> sends a TCP RST or ICMP unreachable so the client knows the connection was refused — useful for polite denial of internal apps but reveals the firewall\'s presence externally.' },
+  { domain: 'Policies', q: 'Where do you configure subscription services like IPS or GAV in a policy?', a: 'On the <strong>Properties → Application Control / IPS / GAV / WebBlocker</strong> tabs of the individual policy. Services are applied per-policy, not globally.' },
+
+  // Proxies / Services
+  { domain: 'Proxies', q: 'How does the HTTPS proxy inspect TLS-encrypted traffic?', a: 'Man-in-the-middle: the proxy terminates the client\'s TLS using a Firebox-issued certificate, inspects the cleartext, then re-encrypts to the destination server. Clients must trust the Firebox CA, typically pushed via GPO in AD environments.' },
+  { domain: 'Proxies', q: 'Which proxy would you use for non-HTTP TCP traffic that you still want some inspection on?', a: 'The <strong>TCP-UDP proxy</strong> — a generic catch-all proxy that allows some inspection and policy enforcement on protocols Fireware doesn\'t have a dedicated proxy for.' },
+  { domain: 'Proxies', q: 'What does APT Blocker do?', a: 'Sends suspicious files to a cloud sandbox for full detonation and behavioral analysis, catching zero-day and advanced persistent threats that signature-based AV would miss.' },
+  { domain: 'Proxies', q: 'How is IntelligentAV different from Gateway AntiVirus?', a: 'GAV uses signature-based detection. <strong>IntelligentAV</strong> uses machine learning to identify polymorphic / unknown malware that doesn\'t match known signatures.' },
+  { domain: 'Proxies', q: 'Which subscription service uses cloud DNS to block malicious domain lookups before connection?', a: '<strong>DNSWatch</strong> — DNS filtering against malicious domain reputation, providing an early layer of defense before TCP even establishes.' },
+  { domain: 'Proxies', q: 'What\'s the difference between Basic Security Suite and Total Security Suite?', a: '<strong>BSS</strong>: AppCtrl, IPS, GAV, WebBlocker, spamBlocker, RED, Network Discovery. <strong>TSS</strong>: everything in BSS plus APT Blocker, IntelligentAV, DNSWatch, DLP, ThreatSync, AccessPortal, and additional features.' },
+  { domain: 'Proxies', q: 'What does Reputation Enabled Defense (RED) do?', a: 'Cloud-based URL reputation lookup. The Firebox queries WatchGuard\'s reputation cloud to allow known-good URLs through quickly, block known-bad ones, and only deeply scan unknowns — improving performance and threat coverage.' },
+
+  // Authentication
+  { domain: 'Auth', q: 'What is the Firebox-DB?', a: 'The Firebox\'s built-in local user database. Useful for small deployments or as a fallback; in larger environments, AD/LDAP/RADIUS is preferred.' },
+  { domain: 'Auth', q: 'How do users manually authenticate to a Firebox without SSO?', a: 'They browse to the authentication portal at <code>https://&lt;firebox-ip&gt;:4100/</code>, log in, and the Firebox associates their IP with their identity for the session.' },
+  { domain: 'Auth', q: 'What two components make up the standard SSO setup with Active Directory?', a: 'The <strong>SSO Agent</strong> running on a domain server, plus the <strong>Event Log Monitor (ELM)</strong> which reads AD security event logs for logon events. The SSO Client on workstations is also commonly added for reliability.' },
+  { domain: 'Auth', q: 'Why use the Terminal Services Agent for SSO?', a: 'On RDS / Citrix shared-session servers, multiple users have the same source IP. The TS Agent disambiguates by reporting which user owns each port range or session, allowing per-user policy enforcement on shared servers.' },
+  { domain: 'Auth', q: 'Which protocol typically integrates AuthPoint with the Firebox for VPN MFA?', a: '<strong>RADIUS</strong>, via the AuthPoint Gateway — the Firebox sends authentication to AuthPoint over RADIUS, AuthPoint pushes / OTPs the user, and returns accept/reject.' },
+
+  // VPN
+  { domain: 'VPN', q: 'What\'s the difference between BOVPN Phase 1 and Phase 2?', a: '<strong>Phase 1</strong> establishes the IKE security association — peer authentication (PSK or cert), encryption, hash, DH group. <strong>Phase 2</strong> establishes the IPsec SA for actual data — defines which local/remote networks the tunnel encrypts.' },
+  { domain: 'VPN', q: 'What is BOVPN over TLS used for?', a: 'Site-to-site VPN encapsulated over TLS instead of IPsec. Useful when ISP middle-boxes or NAT block UDP 500/4500 or ESP traffic, or when only TCP 443 traverses the path reliably.' },
+  { domain: 'VPN', q: 'List the four Mobile VPN options in Fireware.', a: '<strong>Mobile VPN with SSL</strong>, <strong>Mobile VPN with IKEv2</strong>, <strong>Mobile VPN with IPSec</strong>, and <strong>Mobile VPN with L2TP</strong>.' },
+  { domain: 'VPN', q: 'A BOVPN log shows "Received proposal without PFS, Expecting...". What\'s the issue?', a: 'Mismatched <strong>Perfect Forward Secrecy</strong> setting in Phase 2. One peer has PFS enabled (with a specific DH group), the other doesn\'t. Either enable PFS on both or disable on both, with matching DH groups if enabled.' },
+  { domain: 'VPN', q: 'Why can\'t Mobile VPN with SSL share TCP 443 with a published web server?', a: 'Both want to bind to the same external port on the Firebox. If you SNAT 443 to an internal web server, move the SSL VPN to a different port (commonly 4443) or use a different external IP for the SSL VPN listener.' },
+  { domain: 'VPN', q: 'Which Mobile VPN type works with native OS clients on Windows / macOS / iOS / Android with no extra software?', a: '<strong>Mobile VPN with IKEv2</strong> — supported by every modern OS\'s built-in VPN client.' },
+
+  // Logging
+  { domain: 'Logging', q: 'Where can a Firebox send logs?', a: 'Internal buffer (volatile), <strong>WatchGuard Log Server</strong> (Windows), <strong>Dimension Log Server</strong> (virtual appliance), generic <strong>syslog</strong>, and <strong>WatchGuard Cloud</strong>.' },
+  { domain: 'Logging', q: 'What is FireWatch?', a: 'An interactive bandwidth visualization in Dimension that shows top users, top apps, and top destinations as proportional bubbles, letting you drill into who\'s consuming what in real time.' },
+  { domain: 'Logging', q: 'What diagnostic tasks can you run from FSM or Web UI?', a: 'Ping, traceroute, DNS lookup, TCP dump on a specific interface, and view the routing table — without having to drop to a CLI shell.' },
+  { domain: 'Logging', q: 'What\'s the purpose of a support snapshot?', a: 'Packages the running configuration plus diagnostic data into a single archive that you can submit to WatchGuard support for troubleshooting.' },
+
+  // HA
+  { domain: 'HA', q: 'What are the two FireCluster modes?', a: '<strong>Active / Passive</strong> — one device handles all traffic, the other stands by for failover. <strong>Active / Active</strong> — both devices handle traffic concurrently with load distribution.' },
+  { domain: 'HA', q: 'What dedicated link is required for FireCluster?', a: 'A dedicated <strong>cluster interface</strong> for heartbeats and session state replication between members. Loss of this link can trigger failover or split-brain conditions.' },
+  { domain: 'HA', q: 'Can two different Firebox models be clustered?', a: 'No — FireCluster requires <strong>identical models</strong> with matching firmware versions and equivalent feature key tier.' },
+
+  // Maintenance
+  { domain: 'Maintenance', q: 'What\'s the difference between a backup image (.fxi) and a config file (.xml)?', a: 'The <strong>.fxi backup image</strong> is a full system snapshot — OS, configuration, certificates, feature key. The <strong>.xml config file</strong> is configuration only, smaller, and useful for version control or pushing config to multiple devices.' },
+  { domain: 'Maintenance', q: 'How do you factory reset a Firebox M270?', a: 'Power off the device, hold the <strong>Reset</strong> button while briefly pressing <strong>Power</strong>, continue holding Reset until the indicators show recovery, then release. Boots to factory defaults: 10.0.1.1, admin/readwrite.' },
+  { domain: 'Maintenance', q: 'What happens when a Firebox feature key expires?', a: 'Subscription services (GAV, IPS, WebBlocker, APT Blocker, etc.) stop functioning. The device continues to operate as a basic firewall with policies, NAT, and VPN intact.' },
+  { domain: 'Maintenance', q: 'What\'s the safe upgrade procedure for a production Firebox?', a: '1) Save backup image (.fxi). 2) Save XML config. 3) Read release notes. 4) Schedule maintenance window. 5) Apply firmware via Policy Manager or Web UI. 6) Validate critical traffic flows post-upgrade before declaring done.' },
+  { domain: 'Maintenance', q: 'What is USB backup / restore on a Firebox?', a: 'A USB stick plugged into the device can be configured as a backup target. A "tagged" USB stick can also auto-restore configuration on boot, useful for quickly replacing a failed unit with an identical one.' }
+];
+
+const QUIZ_QUESTIONS = [
+  {
+    domain: 'Fundamentals',
+    q: 'You\'ve just unboxed a new Firebox M270 with no prior configuration. What is the default URL and credentials to start the Web Setup Wizard?',
+    options: [
+      'https://192.168.1.1 with admin / admin',
+      'https://10.0.1.1:8080 with admin / readwrite',
+      'http://192.168.0.1:80 with admin / password',
+      'https://10.10.10.1:443 with administrator / Watchguard1'
+    ],
+    correct: 1,
+    explanation: 'Every factory-default Firebox listens at <strong>https://10.0.1.1:8080</strong> on the trusted interface, with default credentials <strong>admin / readwrite</strong>. The status (read-only) account is <strong>status / readonly</strong>.'
+  },
+  {
+    domain: 'Fundamentals',
+    q: 'Which statement about feature keys is correct?',
+    options: [
+      'A feature key only affects WatchGuard Cloud reporting',
+      'Without a feature key, the Firebox cannot pass any traffic',
+      'A feature key unlocks subscription services and defines model capabilities; without one, subscription services like GAV and IPS will not function',
+      'Feature keys are only required for the M-series, not T-series'
+    ],
+    correct: 2,
+    explanation: 'The <strong>feature key</strong> ties the appliance to your WatchGuard account and unlocks paid subscription services. Without it, the Firebox still functions as a basic stateful firewall, but Gateway AntiVirus, IPS, WebBlocker, APT Blocker, and similar services will not run.'
+  },
+  {
+    domain: 'Management',
+    q: 'A user wants to monitor real-time traffic, see currently authenticated users, and watch live VPN tunnel status without making configuration changes. Which tool should they use?',
+    options: [
+      'Policy Manager',
+      'Firebox System Manager (FSM)',
+      'WatchGuard Cloud Configurator',
+      'HostWatch Editor'
+    ],
+    correct: 1,
+    explanation: '<strong>Firebox System Manager (FSM)</strong> is the real-time monitoring tool: bandwidth, authenticated users, VPN status, subscription health, and the live log stream. <strong>Policy Manager</strong> is for editing configuration. HostWatch is for visualizing live connections, narrower in scope.'
+  },
+  {
+    domain: 'Management',
+    q: 'Which SSH port does a Firebox use by default for CLI access?',
+    options: ['22', '4118', '8080', '4100'],
+    correct: 1,
+    explanation: 'Fireware\'s SSH service listens on TCP <strong>4118</strong> by default, not the standard 22. Port 4100 is the authentication portal; 8080 is the Web UI.'
+  },
+  {
+    domain: 'Networking',
+    q: 'Your branch office has two ISP connections. You want to use both simultaneously to spread load, but keep individual flows on whichever WAN they started on so banking and SaaS sessions don\'t break. What combination should you configure?',
+    options: [
+      'Failover with sticky connections',
+      'Round-Robin without sticky connections',
+      'Round-Robin with sticky connections',
+      'Routing Table only'
+    ],
+    correct: 2,
+    explanation: '<strong>Round-Robin</strong> distributes new connections across both WANs. <strong>Sticky connections</strong> ensure each established flow remains on its original WAN even as new flows are spread, preventing source-IP-change session breaks.'
+  },
+  {
+    domain: 'Networking',
+    q: 'Which dynamic routing protocols are supported by Fireware?',
+    options: [
+      'OSPF and EIGRP only',
+      'BGP only',
+      'RIP, OSPF, and BGP',
+      'IS-IS, OSPF, and BGP'
+    ],
+    correct: 2,
+    explanation: 'Fireware supports <strong>RIPv1/v2, OSPFv2/v3, and BGP</strong>. EIGRP is Cisco-proprietary and not supported. IS-IS is not supported.'
+  },
+  {
+    domain: 'Networking',
+    q: 'You need to add an 802.1Q-tagged segment for guest Wi-Fi on the same physical interface that already serves the trusted LAN. What construct in Fireware do you use?',
+    options: [
+      'Bridge interface',
+      'Link Aggregation group',
+      'VLAN interface',
+      'Custom zone'
+    ],
+    correct: 2,
+    explanation: 'A <strong>VLAN interface</strong> with the appropriate 802.1Q tag, attached to the physical interface, gives you a separate logical zone with its own IP, DHCP, and policies — sharing the physical port with the existing trusted segment.'
+  },
+  {
+    domain: 'NAT',
+    q: 'You have a single public IP from your ISP and need to publish a web server on port 443 to the internet. Internal users on the trusted network also need to reach this site by its public DNS name. What\'s the right approach?',
+    options: [
+      'Use 1-to-1 NAT for the web server',
+      'Use Static NAT (SNAT) for 443 → internal server, with NAT loopback enabled by an SNAT policy that permits internal sources',
+      'Use Dynamic NAT in reverse',
+      'Disable NAT entirely on the External interface'
+    ],
+    correct: 1,
+    explanation: '<strong>Static NAT (SNAT)</strong> publishes a single port on the public IP to the internal server. <strong>NAT loopback</strong> handles internal users hitting the public IP — Fireware supports this automatically when the SNAT policy permits the internal source. 1-to-1 NAT would map an entire dedicated public IP, which you don\'t have to spare.'
+  },
+  {
+    domain: 'NAT',
+    q: 'What feature lets a single SNAT action distribute inbound connections across multiple internal servers?',
+    options: [
+      'Sticky connections',
+      'Multi-WAN failover',
+      'SNAT load balancing (round-robin / least connections / sticky)',
+      'BOVPN tunneling'
+    ],
+    correct: 2,
+    explanation: 'SNAT actions support <strong>load balancing</strong> across multiple internal targets with round-robin, least-connections, or sticky algorithms. This is built into the SNAT configuration, not a separate feature.'
+  },
+  {
+    domain: 'Policies',
+    q: 'Which is true about packet filter vs proxy policies?',
+    options: [
+      'Packet filters can run Gateway AntiVirus; proxies cannot',
+      'Proxies operate at L3/L4 only; packet filters do deep inspection',
+      'Proxies terminate and re-originate connections, enabling content inspection like GAV, APT, and HTTPS inspection; packet filters only inspect L3/L4 headers',
+      'There is no functional difference; the names are interchangeable'
+    ],
+    correct: 2,
+    explanation: '<strong>Packet filters</strong> work at Layer 3/4 — fast, no payload inspection. <strong>Proxies</strong> terminate the connection and re-originate it, which lets the Firebox inspect application content. Most subscription services that scan content (GAV, APT Blocker, WebBlocker on HTTP/S) require a proxy policy.'
+  },
+  {
+    domain: 'Policies',
+    q: 'In Policy Manager, several policies match the same flow. Which determines which one applies?',
+    options: [
+      'The policy with the lowest numeric ID',
+      'The policy that was created most recently',
+      'Policy precedence — Auto-Order places more specific policies first; Manual-Order uses the explicit order you set',
+      'All matching policies apply simultaneously'
+    ],
+    correct: 2,
+    explanation: 'Fireware processes policies <strong>top-to-bottom</strong>. Default <strong>Auto-Order</strong> places more specific policies above more general ones. Switch to <strong>Manual-Order</strong> when you need explicit control — for example, when overlapping rules require a particular evaluation sequence.'
+  },
+  {
+    domain: 'Policies',
+    q: 'A user complains that an application is blocked. From the policies shown, the only allowed traffic from the Sales group is SMTP and POP3. Can users in Sales connect to websites with HTTPS?',
+    options: [
+      'Yes — HTTPS is always allowed by default',
+      'Yes — but only on weekdays',
+      'No — there is no policy permitting HTTPS from the Sales group',
+      'Only if they authenticate to the captive portal first'
+    ],
+    correct: 2,
+    explanation: 'Fireware\'s default behavior is <strong>deny by default</strong> for traffic without a matching allow policy. If only SMTP and POP3 are permitted for the Sales group, HTTPS traffic from Sales has no matching policy and is blocked.'
+  },
+  {
+    domain: 'Proxies',
+    q: 'You enable HTTPS content inspection on a Firebox. Internal users start seeing certificate warnings on every site. What\'s the resolution?',
+    options: [
+      'Disable HTTPS proxy entirely',
+      'Push the Firebox-generated CA certificate to all client trust stores (typically via GPO)',
+      'Install a public commercial wildcard certificate on every internal client',
+      'Add the destination websites to a bypass list'
+    ],
+    correct: 1,
+    explanation: 'HTTPS content inspection works by the Firebox <strong>terminating the client TLS</strong> with a Firebox-issued cert and re-encrypting to the destination. Clients see warnings until they trust the Firebox CA. The standard fix is <strong>pushing the CA cert via GPO</strong> in Active Directory environments.'
+  },
+  {
+    domain: 'Proxies',
+    q: 'Which subscription service uses cloud sandbox detonation to detect zero-day malware?',
+    options: ['WebBlocker', 'Gateway AntiVirus', 'APT Blocker', 'Botnet Detection'],
+    correct: 2,
+    explanation: '<strong>APT Blocker</strong> sends suspicious files to a cloud sandbox for full behavioral analysis, catching unknown / zero-day threats that signature-based scanners miss. GAV uses signatures; IntelligentAV uses ML.'
+  },
+  {
+    domain: 'Proxies',
+    q: 'Which two services are included in WatchGuard Total Security Suite (TSS) but NOT in Basic Security Suite (BSS)?',
+    options: [
+      'IPS and WebBlocker',
+      'Gateway AntiVirus and Application Control',
+      'APT Blocker and DNSWatch',
+      'spamBlocker and RED'
+    ],
+    correct: 2,
+    explanation: 'BSS includes the foundational services: <strong>AppCtrl, IPS, GAV, WebBlocker, spamBlocker, RED, Network Discovery</strong>. TSS adds <strong>APT Blocker, IntelligentAV, DNSWatch, DLP, ThreatSync, AccessPortal</strong>, and more.'
+  },
+  {
+    domain: 'Auth',
+    q: 'You want users on a Windows AD domain to be transparently identified by the Firebox so policies can apply per-user without manual portal logins. What do you deploy?',
+    options: [
+      'AuthPoint MFA',
+      'SSO Agent + Event Log Monitor (and optionally SSO Client on workstations)',
+      'RADIUS over IPsec',
+      'A SAML 2.0 federation only'
+    ],
+    correct: 1,
+    explanation: 'Active Directory SSO uses the <strong>SSO Agent</strong> on a domain server plus the <strong>Event Log Monitor (ELM)</strong> reading AD security event logs for logon events. The optional <strong>SSO Client</strong> on workstations adds reliability. AuthPoint is for MFA on top, not transparent identity.'
+  },
+  {
+    domain: 'Auth',
+    q: 'In a Remote Desktop Services / Citrix environment where many users share a single source IP, which agent do you deploy for accurate per-user identity?',
+    options: [
+      'SSO Client',
+      'Exchange Monitor',
+      'Terminal Services Agent',
+      'RADIUS Single Sign-On Agent'
+    ],
+    correct: 2,
+    explanation: 'On shared-session servers, multiple users come from one IP. The <strong>Terminal Services Agent</strong> disambiguates by reporting per-user port ranges to the Firebox so identity-based policies still work correctly.'
+  },
+  {
+    domain: 'Auth',
+    q: 'On which port does the Firebox authentication portal listen for manual user logins?',
+    options: ['443', '4100', '4118', '8080'],
+    correct: 1,
+    explanation: 'The authentication portal is at <strong>https://&lt;firebox-ip&gt;:4100/</strong>. Port 8080 is Web UI management; 4118 is SSH; 443 is for HTTPS proxy / SSL VPN.'
+  },
+  {
+    domain: 'VPN',
+    q: 'You\'re troubleshooting a BOVPN that won\'t come up. The log shows "Phase 1 negotiation failed". What\'s the most likely cause?',
+    options: [
+      'The remote network is unreachable',
+      'A mismatch between peers in encryption, hash, DH group, lifetime, or pre-shared key',
+      'The Firebox feature key has expired',
+      'NAT loopback is disabled'
+    ],
+    correct: 1,
+    explanation: 'Phase 1 negotiation establishes the IKE SA. Failures here almost always indicate a <strong>parameter mismatch</strong> between peers — encryption algorithm, hash, Diffie-Hellman group, SA lifetime, or the pre-shared key / certificate. Check both ends side-by-side.'
+  },
+  {
+    domain: 'VPN',
+    q: 'A BOVPN log shows "Received proposal without PFS, Expecting...". What setting do you check?',
+    options: [
+      'NAT traversal on Phase 1',
+      'Perfect Forward Secrecy (PFS) and DH group settings on Phase 2',
+      'BGP route advertisement',
+      'WatchGuard Cloud connectivity'
+    ],
+    correct: 1,
+    explanation: 'This is a classic Phase 2 mismatch: one peer has <strong>Perfect Forward Secrecy</strong> enabled (with a DH group), the other doesn\'t. Fix: enable PFS on both sides with matching DH groups, or disable PFS on both.'
+  },
+  {
+    domain: 'VPN',
+    q: 'You publish a web server via SNAT on TCP 443 of the Firebox\'s external IP. Now you want to enable Mobile VPN with SSL on the same external IP. What must change?',
+    options: [
+      'Nothing — both can share TCP 443',
+      'Mobile VPN with SSL must move to a different port (e.g., 4443) since both want to bind to the same external port',
+      'Disable HTTPS proxy on the Firebox',
+      'Switch the SNAT to UDP'
+    ],
+    correct: 1,
+    explanation: 'A single port on a single IP can only be bound to one listener. With 443 already SNAT\'d to your web server, <strong>move Mobile VPN with SSL to a different port</strong> like 4443 (or use a different external IP for the SSL VPN listener).'
+  },
+  {
+    domain: 'VPN',
+    q: 'Which Mobile VPN type works with the native VPN clients built into Windows, macOS, iOS, and Android — no third-party software required?',
+    options: [
+      'Mobile VPN with SSL',
+      'Mobile VPN with IKEv2',
+      'Mobile VPN with IPSec (legacy)',
+      'BOVPN over TLS'
+    ],
+    correct: 1,
+    explanation: '<strong>Mobile VPN with IKEv2</strong> uses the IKEv2 standard, supported by every modern OS\'s built-in VPN client. Mobile VPN with SSL requires the WatchGuard SSL VPN client (or an OpenVPN-compatible one).'
+  },
+  {
+    domain: 'Logging',
+    q: 'You want centralized log collection, dashboards, FireWatch visualization, and scheduled PDF reports across multiple Fireboxes — without paying for a third-party SIEM. What does WatchGuard provide?',
+    options: [
+      'WatchGuard Server Center',
+      'Dimension (free virtual appliance)',
+      'HostWatch',
+      'Firebox System Manager (FSM)'
+    ],
+    correct: 1,
+    explanation: '<strong>Dimension</strong> is WatchGuard\'s free virtual appliance for log aggregation, dashboards, FireWatch interactive visualization, and reporting. Deploys on Hyper-V, ESXi, AWS, or Azure.'
+  },
+  {
+    domain: 'Logging',
+    q: 'Which built-in diagnostic task in FSM / Web UI captures packet-level traffic on a specific interface for offline analysis?',
+    options: [
+      'Ping',
+      'Traceroute',
+      'TCP Dump',
+      'DNS Lookup'
+    ],
+    correct: 2,
+    explanation: '<strong>TCP Dump</strong> from the Diagnostic Tasks panel captures traffic on a specific interface to a downloadable .pcap file you can analyze in Wireshark. Useful for VPN, NAT, and policy troubleshooting.'
+  },
+  {
+    domain: 'HA',
+    q: 'You\'re building a FireCluster for HA. Which is NOT a requirement?',
+    options: [
+      'Identical Firebox models on both members',
+      'Matching firmware versions on both members',
+      'A dedicated cluster interface for state sync',
+      'Different feature key tiers on each member'
+    ],
+    correct: 3,
+    explanation: 'FireCluster requires <strong>identical models, matching firmware, and equivalent feature key tier</strong> (typically same Total Security Suite license). A dedicated cluster interface for heartbeats and state sync is required. Different feature key tiers between members is NOT supported.'
+  },
+  {
+    domain: 'HA',
+    q: 'In an Active/Passive FireCluster, what triggers an automatic failover?',
+    options: [
+      'Only manual intervention',
+      'Power loss or interface link failure on the active member, or heartbeat loss across the cluster link',
+      'A daily scheduled job',
+      'Any incoming traffic burst above 80% utilization'
+    ],
+    correct: 1,
+    explanation: 'Failover triggers include <strong>power loss</strong>, <strong>configurable interface link loss</strong>, and <strong>heartbeat loss</strong> on the cluster link. Manual failover is also available from FSM, but automatic triggers are health-based.'
+  },
+  {
+    domain: 'Maintenance',
+    q: 'Before applying a Fireware OS upgrade to a production Firebox, what should you do first?',
+    options: [
+      'Disable all subscription services',
+      'Take a backup image (.fxi) and save the XML config; review release notes; schedule a maintenance window',
+      'Factory reset the device',
+      'Switch the device to cloud-managed mode'
+    ],
+    correct: 1,
+    explanation: 'Always take a <strong>backup image</strong> and save the <strong>XML config</strong>, <strong>read release notes</strong> for known issues, and schedule a maintenance window. After upgrade, validate critical traffic flows before declaring done.'
+  },
+  {
+    domain: 'Maintenance',
+    q: 'A Firebox\'s feature key has expired. What happens to network traffic?',
+    options: [
+      'All traffic is blocked until renewal',
+      'The Firebox shuts down',
+      'Subscription services (GAV, IPS, WebBlocker, etc.) stop functioning, but the Firebox continues as a basic firewall with policies, NAT, and VPN',
+      'Only inbound traffic is blocked'
+    ],
+    correct: 2,
+    explanation: 'An expired feature key disables <strong>subscription services</strong> only. Core firewall functions — policies, NAT, VPN, routing — keep operating. You should renew promptly to restore threat protection.'
+  },
+  {
+    domain: 'Maintenance',
+    q: 'What\'s the difference between a Firebox backup image (.fxi) and a configuration export (.xml)?',
+    options: [
+      'They are identical; just different file extensions',
+      'The .fxi is the full system snapshot (OS, config, certificates, feature key); the .xml is configuration only',
+      'The .xml is the full snapshot; the .fxi is config only',
+      'Only one is supported on M-series hardware'
+    ],
+    correct: 1,
+    explanation: '<strong>.fxi</strong> is a full system backup including the OS, configuration, certificates, and feature key. <strong>.xml</strong> is configuration only — smaller, easier to version-control, and useful for pushing the same config to multiple Fireboxes.'
+  },
+  {
+    domain: 'Fundamentals',
+    q: 'Which interface zone is the typical destination for a DMZ subnet hosting public-facing servers?',
+    options: ['Trusted', 'External', 'Optional', 'Cluster'],
+    correct: 2,
+    explanation: 'The <strong>Optional</strong> zone is the traditional Fireware home for DMZ / semi-trusted segments — separate from Trusted (LAN) and External (WAN), with its own policy boundary.'
+  },
+  {
+    domain: 'Networking',
+    q: 'A user can reach the internet but cannot reach a specific internal subnet behind another router. Which is the most likely issue?',
+    options: [
+      'Missing static route on the Firebox to the internal subnet via the router',
+      'Expired feature key',
+      'WatchGuard Cloud disconnect',
+      'IPS signature update failure'
+    ],
+    correct: 0,
+    explanation: 'If the Firebox has no route to a subnet that lives beyond a downstream router, traffic gets dropped or sent out the wrong interface. Add a <strong>static route</strong> for the destination subnet pointing to the next-hop router IP.'
+  },
+  {
+    domain: 'Policies',
+    q: 'Which built-in alias represents all interfaces with the External zone?',
+    options: ['Any', 'Any-Trusted', 'Any-External', 'Any-WAN'],
+    correct: 2,
+    explanation: '<strong>Any-External</strong> is the built-in alias matching all External-zone interfaces. Other built-ins: <code>Any-Trusted</code>, <code>Any-Optional</code>, <code>Any-BOVPN</code>, and <code>Any</code>.'
+  },
+  {
+    domain: 'Proxies',
+    q: 'Which proxy would you use to apply some inspection to non-HTTP TCP traffic that doesn\'t have a dedicated proxy?',
+    options: ['HTTPS proxy', 'TCP-UDP proxy', 'DNS proxy', 'SIP proxy'],
+    correct: 1,
+    explanation: 'The <strong>TCP-UDP proxy</strong> is a generic catch-all that lets you apply policy and some inspection to TCP/UDP protocols without dedicated proxy support.'
+  },
+  {
+    domain: 'Auth',
+    q: 'You need to enforce MFA on remote users connecting via Mobile VPN with SSL. What\'s a common WatchGuard-native architecture?',
+    options: [
+      'Firebox local user database with passwords only',
+      'AuthPoint via the AuthPoint Gateway using RADIUS, with the Firebox configured to authenticate VPN users against the AuthPoint RADIUS endpoint',
+      'Open the firewall and trust user devices',
+      'Use BOVPN exclusively'
+    ],
+    correct: 1,
+    explanation: 'A common pattern is the Firebox sending VPN authentication via <strong>RADIUS to the AuthPoint Gateway</strong>. AuthPoint then performs MFA (push, OTP, hardware token) and returns the accept/reject to the Firebox.'
+  },
+  {
+    domain: 'VPN',
+    q: 'A Mobile VPN with SSL client cannot connect, but other internet traffic from the user\'s location works fine. Which is a common root cause?',
+    options: [
+      'The Firebox is in cloud-managed mode',
+      'The remote user\'s ISP or hotel network blocks the SSL VPN port (commonly TCP 443 if you\'ve relocated it, or UDP if configured) — verify the client\'s allowed outbound ports',
+      'The Firebox feature key includes IPS but not WebBlocker',
+      'NAT loopback is disabled'
+    ],
+    correct: 1,
+    explanation: 'Hotel and captive-portal networks frequently block all but a few outbound ports. SSL VPN on the default TCP 443 usually works; if you moved it (e.g., 4443) or configured UDP-only, the client may be blocked. Check what ports the client environment allows.'
+  },
+  {
+    domain: 'Logging',
+    q: 'Where does the WatchGuard Log Server typically run in a small environment?',
+    options: [
+      'On the Firebox itself',
+      'As a Windows service installed alongside WatchGuard System Manager (WSM)',
+      'Only inside WatchGuard Cloud',
+      'On a dedicated Linux container'
+    ],
+    correct: 1,
+    explanation: 'The WatchGuard Log Server is a <strong>Windows service installed with WSM</strong> on a management workstation or server. For larger or more visualization-focused deployments, Dimension is the better choice.'
+  },
+  {
+    domain: 'Maintenance',
+    q: 'A Firebox M270 in production needs to be replaced with an identical spare on short notice. What technique gets the spare running with minimal touch?',
+    options: [
+      'Re-enter all settings manually',
+      'Restore the .fxi backup image (or use a tagged USB stick configured to auto-restore on boot) onto the spare',
+      'Switch to cloud-managed mode mid-failure',
+      'Re-activate the original feature key on a different model'
+    ],
+    correct: 1,
+    explanation: 'Restoring the <strong>.fxi backup image</strong> brings the spare up with the original\'s OS, config, certificates, and feature key. <strong>Tagged USB backup</strong> sticks can also auto-restore on boot — drop in a pre-configured USB and power on.'
+  },
+  {
+    domain: 'Networking',
+    q: 'Which is a use case where you would specifically choose Interface Overflow over Round-Robin for multi-WAN?',
+    options: [
+      'When both ISPs have similar bandwidth and pricing',
+      'When the primary ISP is high-bandwidth/low-cost and the secondary is metered/expensive — fill the primary first, then spill to the secondary only when needed',
+      'When you need true active/passive failover',
+      'Round-Robin always outperforms Interface Overflow'
+    ],
+    correct: 1,
+    explanation: '<strong>Interface Overflow</strong> is ideal when one WAN should carry all traffic until it hits a usage threshold, then spill to a secondary. Common with primary fiber + metered LTE backup, where you don\'t want to incur metered cost unless saturated.'
+  },
+  {
+    domain: 'Policies',
+    q: 'What does enabling "Log allowed packets" on a policy do?',
+    options: [
+      'Blocks all traffic in the policy',
+      'Records every packet that matches the policy and is allowed, so you can see allowed traffic in the logs and reports — useful for auditing',
+      'Enables IPS automatically',
+      'Disables the Firebox log buffer'
+    ],
+    correct: 1,
+    explanation: 'By default, allowed traffic is not logged (only denied). <strong>Log allowed packets</strong> turns on logging for matching allowed traffic — essential for auditing and reporting on what\'s being permitted, but increases log volume.'
+  },
+  {
+    domain: 'Proxies',
+    q: 'You want to block users from reaching a category of websites (e.g., gambling, adult content) by category rather than individually URL. Which service do you use?',
+    options: [
+      'IPS',
+      'Gateway AntiVirus',
+      'WebBlocker',
+      'spamBlocker'
+    ],
+    correct: 2,
+    explanation: '<strong>WebBlocker</strong> uses URL category filtering across 130+ categories (gambling, adult, social media, etc.). Configure on the HTTP and HTTPS proxy policies to enforce category-based blocking.'
+  },
+  {
+    domain: 'Auth',
+    q: 'How long is a typical Firebox session for an authenticated user before they\'re prompted to log in again?',
+    options: [
+      'Forever — once authenticated, always authenticated',
+      'It depends on the configured session and idle timeouts in the authentication settings',
+      'Exactly 60 minutes, hardcoded',
+      'Only one minute'
+    ],
+    correct: 1,
+    explanation: 'Authentication has configurable <strong>session timeout</strong> (max session length) and <strong>idle timeout</strong> (re-authenticate after this period of inactivity). Defaults exist but should be tuned to your security policy.'
+  },
+  {
+    domain: 'VPN',
+    q: 'In BOVPN with two Fireboxes, the gateway endpoints negotiate Phase 1 successfully but Phase 2 fails. The log indicates "no proposal chosen". What do you check?',
+    options: [
+      'Internet connectivity to WatchGuard Cloud',
+      'The Phase 2 / IPsec proposal mismatch — encryption, hash, lifetime, and PFS settings on both sides must agree',
+      'Whether IPS is licensed',
+      'The Firebox serial number'
+    ],
+    correct: 1,
+    explanation: '"No proposal chosen" in Phase 2 means the IPsec parameters offered by one peer aren\'t accepted by the other. Compare and align <strong>encryption, hash, SA lifetime, and PFS / DH group</strong> on both peers.'
+  },
+  {
+    domain: 'Logging',
+    q: 'A user reports their connection to a SaaS app was suddenly blocked. Where in FSM would you look first to confirm what the Firebox did?',
+    options: [
+      'Server Center',
+      'Live log stream filtered by the user\'s source IP',
+      'Feature Key tab',
+      'BOVPN status'
+    ],
+    correct: 1,
+    explanation: 'The <strong>live log stream</strong> in FSM, filtered by the user\'s source IP or destination, shows in real time which policy or service blocked the connection — including IPS hits, WebBlocker categories, or proxy denials.'
+  },
+  {
+    domain: 'Fundamentals',
+    q: 'What\'s the recommended approach for testing Fireware concepts in a lab without affecting production?',
+    options: [
+      'Practice on the production Firebox during off-hours',
+      'Spin up a free FireboxV trial on Hyper-V or ESXi for an isolated lab',
+      'Edit live config and revert if something breaks',
+      'Read documentation only — labs are not necessary'
+    ],
+    correct: 1,
+    explanation: '<strong>FireboxV</strong> is WatchGuard\'s virtual Firebox; a free 30-day trial runs on Hyper-V and ESXi. It\'s the safe way to lab-test policies, VPN configs, and upgrades without touching production.'
+  },
+  {
+    domain: 'Management',
+    q: 'You connect via the serial console to an M270 for emergency CLI access. What are the standard serial settings?',
+    options: ['9600 baud, 8N1', '38400 baud, 7E1', '115200 baud, 8N1', '57600 baud, 7N2'],
+    correct: 2,
+    explanation: 'M-series Fireboxes use <strong>115200 baud, 8 data bits, no parity, 1 stop bit (8N1)</strong> on the RJ45 serial console port — useful when network management is unreachable.'
+  },
+  {
+    domain: 'Policies',
+    q: 'What is a "schedule" in Fireware?',
+    options: [
+      'A reusable named time window that can be applied to a policy to limit when it\'s active',
+      'A backup automation feature',
+      'A type of subscription service',
+      'The firmware update calendar'
+    ],
+    correct: 0,
+    explanation: 'A <strong>schedule</strong> is a reusable time-window object — for example, "Business Hours" Mon–Fri 8am–6pm. Bind it to a policy to make the policy active only during those times.'
+  },
+  {
+    domain: 'NAT',
+    q: 'Which scenario specifically calls for 1-to-1 NAT instead of Static NAT?',
+    options: [
+      'Publishing a single web server on port 443 from a shared public IP',
+      'Mapping every port of a dedicated public IP bidirectionally to a single internal host (e.g., a mail server with its own public IP)',
+      'Sharing one public IP across many internal users for outbound browsing',
+      'Translating addresses inside an IPSec tunnel'
+    ],
+    correct: 1,
+    explanation: '<strong>1-to-1 NAT</strong> is the right choice when you need <strong>every port</strong> of a dedicated public IP mapped bidirectionally to one internal host. SNAT maps individual port pairs; Dynamic NAT is outbound PAT.'
+  },
+  {
+    domain: 'HA',
+    q: 'Why might splitting a FireCluster across different Layer 2 segments cause problems?',
+    options: [
+      'It doesn\'t — FireCluster is L3-routed by default',
+      'FireCluster requires both members on the same Layer 2 segments for shared interfaces (so virtual IPs and ARP behave correctly); split L2 breaks the model',
+      'The Firebox automatically reconfigures itself',
+      'Only an issue if BGP is enabled'
+    ],
+    correct: 1,
+    explanation: 'FireCluster relies on <strong>shared Layer 2 segments</strong> for the cluster\'s virtual IPs and ARP advertisement. Splitting members across different L2 domains for the same logical interface breaks failover, since the standby can\'t take over the virtual IP without ARP being seen on the same segment.'
+  }
+];
+
+// ============== APP STATE ==============
+const state = {
+  panel: 'study',
+  fc: { idx: 0, side: 'front', filter: 'All', marks: {} },
+  quiz: { started: false, idx: 0, answers: [], questions: [] }
+};
+
+try {
+  const saved = JSON.parse(localStorage.getItem('wg-study') || '{}');
+  if (saved.fcMarks) state.fc.marks = saved.fcMarks;
+} catch (e) {}
+
+function saveState() {
+  try {
+    localStorage.setItem('wg-study', JSON.stringify({ fcMarks: state.fc.marks }));
+  } catch (e) {}
+}
+
+// ============== TABS ==============
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.panel;
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === `panel-${target}`));
+    state.panel = target;
+    if (target === 'flashcards') renderFlashcard();
+    if (target === 'quiz' && !state.quiz.started) renderQuizIntro();
+  });
+});
+
+// ============== STATS ==============
+document.getElementById('stat-cards').textContent = FLASHCARDS.length;
+document.getElementById('stat-questions').textContent = QUIZ_QUESTIONS.length;
+
+// ============== STUDY GUIDE ==============
+function renderStudy() {
+  const toc = document.getElementById('toc-list');
+  const content = document.getElementById('study-content');
+  toc.innerHTML = STUDY_SECTIONS.map((s, i) =>
+    `<li><a class="toc-link" data-target="sec-${s.id}"><span class="toc-num">${String(i+1).padStart(2,'0')}</span>${s.title}</a></li>`
+  ).join('');
+  content.innerHTML = STUDY_SECTIONS.map((s, i) => `
+    <article class="study-section" id="sec-${s.id}">
+      <h2 data-num="${String(i+1).padStart(2,'0')}">${s.title}</h2>
+      <p class="lead">${s.lead}</p>
+      ${s.content}
+    </article>
+  `).join('');
+  document.querySelectorAll('.toc-link').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.getElementById(link.dataset.target);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelectorAll('.toc-link').forEach(l => l.classList.toggle('active', l === link));
+    });
+  });
+  // First link active by default
+  const first = document.querySelector('.toc-link');
+  if (first) first.classList.add('active');
+
+  // Scroll spy
+  const sections = STUDY_SECTIONS.map(s => document.getElementById(`sec-${s.id}`));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        document.querySelectorAll('.toc-link').forEach(l => {
+          l.classList.toggle('active', l.dataset.target === id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0% -60% 0%' });
+  sections.forEach(s => s && observer.observe(s));
+}
+
+// ============== FLASHCARDS ==============
+function getDomains() {
+  const set = new Set();
+  FLASHCARDS.forEach(c => set.add(c.domain));
+  return ['All', ...Array.from(set)];
+}
+
+function getFilteredCards() {
+  if (state.fc.filter === 'All') return FLASHCARDS;
+  return FLASHCARDS.filter(c => c.domain === state.fc.filter);
+}
+
+function renderFcFilter() {
+  const filter = document.getElementById('fc-filter');
+  filter.innerHTML = getDomains().map(d =>
+    `<button class="chip ${state.fc.filter === d ? 'active' : ''}" data-domain="${d}">${d}</button>`
+  ).join('');
+  filter.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      state.fc.filter = chip.dataset.domain;
+      state.fc.idx = 0;
+      state.fc.side = 'front';
+      renderFcFilter();
+      renderFlashcard();
+    });
+  });
+}
+
+function renderFlashcard() {
+  const cards = getFilteredCards();
+  if (cards.length === 0) return;
+  if (state.fc.idx >= cards.length) state.fc.idx = 0;
+  const card = cards[state.fc.idx];
+  const cardKey = `${card.domain}-${card.q.slice(0,40)}`;
+  document.getElementById('fc-tag').textContent = card.domain;
+  document.getElementById('fc-side').textContent = state.fc.side === 'front' ? 'QUESTION' : 'ANSWER';
+  const content = document.getElementById('fc-content');
+  content.classList.toggle('answer', state.fc.side === 'back');
+  content.innerHTML = state.fc.side === 'front' ? card.q : card.a;
+  document.getElementById('fc-current').textContent = state.fc.idx + 1;
+  document.getElementById('fc-total').textContent = cards.length;
+  document.getElementById('fc-prev').disabled = state.fc.idx === 0;
+  document.getElementById('fc-next').disabled = state.fc.idx === cards.length - 1;
+  // Mark buttons
+  document.getElementById('fc-known').classList.toggle('active', state.fc.marks[cardKey] === 'known');
+  document.getElementById('fc-review').classList.toggle('active', state.fc.marks[cardKey] === 'review');
+}
+
+function flipCard() {
+  state.fc.side = state.fc.side === 'front' ? 'back' : 'front';
+  renderFlashcard();
+}
+
+function nextCard() {
+  const cards = getFilteredCards();
+  if (state.fc.idx < cards.length - 1) {
+    state.fc.idx++;
+    state.fc.side = 'front';
+    renderFlashcard();
+  }
+}
+
+function prevCard() {
+  if (state.fc.idx > 0) {
+    state.fc.idx--;
+    state.fc.side = 'front';
+    renderFlashcard();
+  }
+}
+
+function markCard(mark) {
+  const cards = getFilteredCards();
+  const card = cards[state.fc.idx];
+  const cardKey = `${card.domain}-${card.q.slice(0,40)}`;
+  state.fc.marks[cardKey] = state.fc.marks[cardKey] === mark ? null : mark;
+  saveState();
+  renderFlashcard();
+}
+
+document.getElementById('flashcard').addEventListener('click', flipCard);
+document.getElementById('fc-next').addEventListener('click', e => { e.stopPropagation(); nextCard(); });
+document.getElementById('fc-prev').addEventListener('click', e => { e.stopPropagation(); prevCard(); });
+document.getElementById('fc-known').addEventListener('click', e => { e.stopPropagation(); markCard('known'); });
+document.getElementById('fc-review').addEventListener('click', e => { e.stopPropagation(); markCard('review'); });
+
+document.addEventListener('keydown', e => {
+  if (state.panel !== 'flashcards') return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+  if (e.key === 'ArrowRight') nextCard();
+  if (e.key === 'ArrowLeft') prevCard();
+});
+
+// ============== QUIZ ==============
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function renderQuizIntro() {
+  document.getElementById('quiz-stage').innerHTML = `
+    <div class="quiz-intro">
+      <h3>Practice Quiz</h3>
+      <p>${QUIZ_QUESTIONS.length} questions across all exam domains.</p>
+      <p>WatchGuard exams require 75% to pass. Pick a length and begin.</p>
+      <div class="quiz-options">
+        <button class="btn" data-len="10">Quick — 10 Q</button>
+        <button class="btn" data-len="25">Mid — 25 Q</button>
+        <button class="btn primary" data-len="all">Full Set</button>
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('.quiz-options .btn').forEach(b => {
+    b.addEventListener('click', () => {
+      const len = b.dataset.len === 'all' ? QUIZ_QUESTIONS.length : parseInt(b.dataset.len);
+      startQuiz(len);
+    });
+  });
+}
+
+function startQuiz(len) {
+  const shuffled = shuffle(QUIZ_QUESTIONS).slice(0, len);
+  state.quiz = { started: true, idx: 0, answers: [], questions: shuffled };
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.quiz.questions[state.quiz.idx];
+  const total = state.quiz.questions.length;
+  const answered = state.quiz.answers[state.quiz.idx];
+  const progress = ((state.quiz.idx) / total) * 100;
+  const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+  document.getElementById('quiz-stage').innerHTML = `
+    <div class="quiz-progress">
+      <span>Q ${state.quiz.idx + 1} / ${total}</span>
+      <span>${state.quiz.answers.filter(a => a !== undefined).length} answered</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+    <div class="question-card">
+      <div class="q-domain">${q.domain}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">
+        ${q.options.map((opt, i) => {
+          let cls = '';
+          if (answered !== undefined) {
+            if (i === q.correct) cls = 'correct';
+            else if (i === answered) cls = 'incorrect';
+          }
+          return `<button class="q-opt ${cls}" data-i="${i}" ${answered !== undefined ? 'disabled' : ''}>
+            <span class="q-opt-letter">${letters[i]}</span>
+            <span>${opt}</span>
+          </button>`;
+        }).join('')}
+      </div>
+      <div class="q-explanation ${answered !== undefined ? 'show' : ''}">
+        <div class="q-explanation-label">Explanation</div>
+        ${q.explanation}
+      </div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn" id="q-prev" ${state.quiz.idx === 0 ? 'disabled' : ''}>← Previous</button>
+      ${state.quiz.idx === total - 1
+        ? `<button class="btn primary" id="q-finish">Finish & Score</button>`
+        : `<button class="btn primary" id="q-next">Next →</button>`}
+    </div>
+  `;
+
+  document.querySelectorAll('.q-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const i = parseInt(opt.dataset.i);
+      state.quiz.answers[state.quiz.idx] = i;
+      renderQuestion();
+    });
+  });
+  const prev = document.getElementById('q-prev');
+  if (prev) prev.addEventListener('click', () => { state.quiz.idx--; renderQuestion(); });
+  const next = document.getElementById('q-next');
+  if (next) next.addEventListener('click', () => { state.quiz.idx++; renderQuestion(); });
+  const finish = document.getElementById('q-finish');
+  if (finish) finish.addEventListener('click', renderResults);
+}
+
+function renderResults() {
+  const total = state.quiz.questions.length;
+  const correct = state.quiz.answers.filter((a, i) => a === state.quiz.questions[i].correct).length;
+  const pct = Math.round((correct / total) * 100);
+  const passed = pct >= 75;
+
+  // Domain breakdown
+  const domains = {};
+  state.quiz.questions.forEach((q, i) => {
+    if (!domains[q.domain]) domains[q.domain] = { correct: 0, total: 0 };
+    domains[q.domain].total++;
+    if (state.quiz.answers[i] === q.correct) domains[q.domain].correct++;
+  });
+
+  document.getElementById('quiz-stage').innerHTML = `
+    <div class="results">
+      <div style="font-family:var(--mono); font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:0.12em;">Result</div>
+      <div class="score-display">${correct}<span class="total">/${total}</span></div>
+      <div class="score-pct ${passed ? 'pass' : 'fail'}">${pct}% — ${passed ? 'PASS (≥75%)' : 'BELOW PASS MARK'}</div>
+      <div class="domain-breakdown">
+        <div style="font-family:var(--mono); font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:12px;">Breakdown by Domain</div>
+        ${Object.entries(domains).map(([d, v]) => {
+          const dPct = Math.round((v.correct / v.total) * 100);
+          return `<div class="domain-row"><span class="name">${d}</span><span class="val">${v.correct} / ${v.total} · ${dPct}%</span></div>`;
+        }).join('')}
+      </div>
+      <div class="quiz-options">
+        <button class="btn" id="q-review">Review Answers</button>
+        <button class="btn primary" id="q-restart">New Quiz</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('q-restart').addEventListener('click', () => {
+    state.quiz.started = false;
+    renderQuizIntro();
+  });
+  document.getElementById('q-review').addEventListener('click', () => {
+    state.quiz.idx = 0;
+    renderQuestion();
+  });
+}
+
+// ============== INIT ==============
+renderStudy();
+renderFcFilter();
+renderFlashcard();
+</script>
+
+</body>
+</html>
